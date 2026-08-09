@@ -1,0 +1,5 @@
+displayName = Wiki Generator
+author = follycake
+version = 0.1
+buildIgnore = Properties/*
+dllReferences = SixLabors.ImageSharp

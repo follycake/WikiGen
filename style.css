@@ -1,0 +1,41 @@
+body {
+    padding: 6px 18px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+td, th {
+    border: 1px solid #aaaaaa;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dfdfdf;
+}
+
+img {
+    vertical-align: middle;
+}
+
+.rich-text {
+    white-space: pre-line;
+}
+
+.rich-text > span {
+    font-weight: bold;
+}
+
+.recipe ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+table ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+table h1 {
+    margin: 0;
+}

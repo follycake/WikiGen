@@ -1,0 +1,16 @@
+Configs: {
+	WikiGenConfig: {
+		DisplayName: Wiki Config
+		Headers.General: General
+
+		TargetModName: {
+			Label: Target Mod
+			Tooltip: The internal name of the mod to generate a wiki for.
+		}
+
+		OpenWikiFolder: {
+			Label: Open Wiki Folder
+			Tooltip: ""
+		}
+	}
+}
