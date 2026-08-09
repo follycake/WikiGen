@@ -68,12 +68,38 @@ public partial class WikiGen : Mod
 		texture.SaveAsPng(stream, texture.Width, texture.Height);
 	}
 
+	static string GetBuildProperty(Mod mod, string property)
+	{
+		using Stream stream = mod.GetFileStream("Info", true);
+		using BinaryReader reader = new(stream);
+		while (stream.Position < stream.Length)
+		{
+			string str = reader.ReadString();
+			if (str.Equals(property, StringComparison.InvariantCultureIgnoreCase))
+				return reader.ReadString();
+		}
+		return null;
+	}
+
+	static string GetHomepage(Mod mod)
+	{
+		return GetBuildProperty(mod, "homepage");
+	}
+
 	static void IndexPage()
 	{
 		Page index = new(TargetMod.DisplayNameClean + " Wiki!", "/index.html", "/icon.png");
-		index.Add(XTable.Create([index.Image("/icon_medium.png"), Heading(index.Title)]));
+		XTable table = new();
+		string home = GetHomepage(TargetMod);
+		if (string.IsNullOrWhiteSpace(home))
+			table.AddRow(Paragraph(TargetMod.Name), Hyperlink(GetHomepage(Instance), "Powered by WikiGen"));
+		else
+			table.AddRow(Hyperlink(home, "Homepage"), Hyperlink(GetHomepage(Instance), "Powered by WikiGen"));
+		table.AddRow(index.Image("/icon_medium.png"), Heading(index.Title));
+
+		index.Add(table);
 		index.Add(Paragraph("Version: " + TargetMod.Version));
-		index.Add(index.Image("/icon_large.png"));
+		index.Add(index.Image("/icon_large.png").WithAttribute("width", 480).WithAttribute("height", 480));
 
 		index.Add(Heading("Table of contents", 2));
 		var tableOfContents = List();
