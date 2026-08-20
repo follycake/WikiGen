@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 using Terraria.UI.Chat;
 using WikiGen.Handlers;
 
@@ -38,9 +39,18 @@ static class Elements
 		List<TextSnippet> snippets = ChatManager.ParseMessage(text, baseColor);
 		foreach (TextSnippet snippet in snippets)
 		{
-			if (snippet.TextOriginal.StartsWith("[i:") && int.TryParse(snippet.TextOriginal[3..^1], out int type))
+			if (snippet.TextOriginal.StartsWith("[i:"))
 			{
-				p.Add(page.Image(Items.GetImage(type)));
+				string icon = snippet.TextOriginal[3..^1];
+				if (int.TryParse(icon, out int type))
+					p.Add(page.Image(Items.GetImage(type)));
+				else if (icon.Contains('/'))
+				{
+					string modName = icon[..icon.IndexOf('/')];
+					string itemName = icon[(icon.LastIndexOf('/') + 1)..];
+					if (ModLoader.TryGetMod(modName, out Mod mod) && mod.TryFind(itemName, out ModItem item))
+						p.Add(page.Image(Items.GetImage(item.Type)));
+				}
 				continue;
 			}
 			if (snippet.Color != baseColor && snippet.Color != Color.White)

@@ -73,6 +73,13 @@ class NPCHandler : ContentHandler<ModNPC>
             }
         }
 
+        string key = npc.GetLocalizationKey("Census.SpawnCondition");
+        if (Language.Exists(key))
+        {
+            page.Add(Heading("Spawn requirements", 2));
+            page.Add(RichParagraph(page, Language.GetTextValue(key)));
+        }
+
         page.Add(Heading("Shops", 2));
         bool any = false;
         foreach (AbstractNPCShop shop in NPCShopDatabase.AllShops)
