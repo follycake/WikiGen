@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent;
+using Terraria.GameContent.ItemDropRules;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace WikiGen.Handlers;
@@ -125,6 +127,39 @@ class ItemHandler : ContentHandler<ModItem>
         {
             page.Add(Heading("Sold in shops", 2));
             page.Add(soldIn);
+        }
+
+        XTable droppedBy = new();
+        droppedBy.AddRow();
+        droppedBy.AddHeader("NPC");
+        droppedBy.AddHeader("Amount");
+        droppedBy.AddHeader("Chance");
+
+        List<DropRateInfo> drops = [];
+        foreach (KeyValuePair<int, NPC> pair in ContentSamples.NpcsByNetId)
+        {
+            int netId = pair.Key;
+            NPC npc = pair.Value;
+            foreach (IItemDropRule dropRule in Main.ItemDropsDB.GetRulesForNPCID(netId))
+            {
+                drops.Clear();
+                dropRule.ReportDroprates(drops, new DropRateInfoChainFeed(1f));
+                foreach (DropRateInfo drop in drops)
+                {
+                    if (drop.itemId != item.Type)
+                        continue;
+                    droppedBy.AddRow();
+                    droppedBy.AddData(NPCs.Display(page, npc.type));
+                    droppedBy.AddData(drop.stackMin == drop.stackMax ? drop.stackMin.ToString() : drop.stackMin + " to " + drop.stackMax);
+                    droppedBy.AddData(MathF.Round(drop.dropRate * 100f) + "%");
+                }
+            }
+        }
+
+        if (droppedBy.RowCount > 1)
+        {
+            page.Add(Heading("Dropped by", 2));
+            page.Add(droppedBy);
         }
         return page;
     }
