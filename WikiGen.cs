@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Microsoft.Xna.Framework.Graphics;
@@ -118,26 +119,42 @@ public partial class WikiGen : Mod
 
 	static void CreatePages<T>(Page index, XElement tableOfContents, ContentHandler<T> handler) where T : ModType
 	{
-		List<Page> pages = [];
+		Dictionary<string, List<Page>> categories = [];
+		Dictionary<string, int> orderMap = [];
 		foreach (T content in TargetMod.GetContent<T>())
 		{
+			string category = handler.GetCategory(content, out int order);
+			if (!categories.TryGetValue(category, out List<Page> pages))
+			{
+				pages = [];
+				categories.Add(category, pages);
+				orderMap.Add(category, order);
+			}
 			Page page = handler.CreatePage(index, content);
 			page.Save();
 			pages.Add(page);
 		}
-		pages.Sort((a, b) => a.Title.CompareTo(b.Title));
-
-		string id = handler.Title.ToLowerInvariant();
-		index.Add(Heading(handler.Title, 2).WithId(id));
-		tableOfContents.Add(ListItem(Hyperlink("#" + id, handler.Title)));
-
-		XTable table = new();
-		foreach (Page page in pages)
+		if (categories.Count > 1)
+			index.Add(Heading(handler.Title, 2));
+		foreach (KeyValuePair<string, List<Page>> pair in categories.OrderBy(pair => orderMap[pair.Key]))
 		{
-			table.AddRow();
-			table.AddData(index.Image(Path.ChangeExtension(page.PagePath.WikiPath, handler.ImageExtension)));
-			table.AddData(index.Hyperlink(page));
+			string category = pair.Key;
+			List<Page> pages = pair.Value;
+			pages.Sort((a, b) => a.Title.CompareTo(b.Title));
+
+			string title = handler.Title.Equals(category, StringComparison.InvariantCultureIgnoreCase) ? handler.Title : handler.Title + " - " + category;
+			string id = title.ToLowerInvariant();
+			index.Add(Heading(category, categories.Count > 1 ? 3 : 2).WithId(id));
+			tableOfContents.Add(ListItem(Hyperlink("#" + id, title)));
+
+			XTable table = new();
+			foreach (Page page in pages)
+			{
+				table.AddRow();
+				table.AddData(index.Image(Path.ChangeExtension(page.PagePath.WikiPath, handler.ImageExtension)));
+				table.AddData(index.Hyperlink(page));
+			}
+			index.Add(table);
 		}
-		index.Add(table);
 	}
 }

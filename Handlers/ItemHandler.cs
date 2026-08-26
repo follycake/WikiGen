@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Humanizer;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
@@ -23,6 +24,14 @@ class ItemHandler : ContentHandler<ModItem>
     public override ModItem GetModType(int type) => ModContent.GetModItem(type);
     public override void LoadTexture(int type) => Main.instance.LoadItem(type);
     public override Asset<Texture2D> GetTexture(int type) => TextureAssets.Item[type];
+
+    public override string GetCategory(ModItem item, out int order)
+    {
+        ContentSamples.CreativeHelper.ItemGroup itemGroup = ContentSamples.CreativeHelper.ItemGroup.EverythingElse;
+        item.ModifyResearchSorting(ref itemGroup);
+        order = (int)itemGroup;
+        return itemGroup.Humanize();
+    }
 
     public XElement Display(Page page, Item item)
     {

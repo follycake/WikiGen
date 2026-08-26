@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Xml.Linq;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,6 +17,18 @@ abstract class ContentHandler<TModType> where TModType : ModType
     public abstract TModType GetModType(int type);
     public abstract void LoadTexture(int type);
     public abstract Asset<Texture2D> GetTexture(int type);
+
+    public virtual string GetCategory(TModType modType, out int order)
+    {
+        order = 0;
+        return Title;
+    }
+
+    public string GetSectionTitle(TModType modType)
+    {
+        string category = GetCategory(modType, out _);
+        return Title.Equals(category, StringComparison.InvariantCultureIgnoreCase) ? Title : Title + " - " + category;
+    }
 
     public virtual Texture2D GetImageTexture(int type, out bool dispose)
     {
@@ -62,7 +75,7 @@ abstract class ContentHandler<TModType> where TModType : ModType
     public virtual Page CreatePage(Page index, TModType modType)
     {
         Page page = new(GetDisplayName(GetId(modType)), GetPageLink(modType), index.Favicon);
-        page.Add(page.Hyperlink(index.PagePath + ("#" + Title.ToLowerInvariant()), "Return home"));
+        page.Add(page.Hyperlink(index.PagePath + ("#" + GetSectionTitle(modType).ToLowerInvariant()), "Return home"));
         page.Add(XTable.Create([page.Image(GetImage(GetId(modType))), Elements.Heading(page.Title), Elements.Paragraph(modType.Name)]));
         return page;
     }
