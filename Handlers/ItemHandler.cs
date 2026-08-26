@@ -102,6 +102,8 @@ class ItemHandler : ContentHandler<ModItem>
                 AddRecipe(page, crafting, recipe);
             if (recipe.requiredItem.Exists(ingredient => ingredient.type == item.Type))
                 AddRecipe(page, usedIn, recipe);
+            else if (item.Item.createTile != -1 && recipe.requiredTile.Contains(item.Item.createTile))
+                AddRecipe(page, usedIn, recipe);
         }
 
         page.Add(Heading("How to craft", 3));
