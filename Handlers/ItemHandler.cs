@@ -174,29 +174,43 @@ class ItemHandler : ContentHandler<ModItem>
         }
         return page;
     }
-    
+
     readonly static string[] _tooltipNames = new string[30];
+    readonly static string[] _tooltipLines = new string[30];
 	readonly static bool[] _tooltipModifier = new bool[30];
 
-	static List<TooltipLine> GetTooltips(ModItem item)
-	{
-		string[] text = item.Tooltip.ToString().ReplaceLineEndings("\n").Split('\n');
-		for (int i = 0; i < text.Length; i++)
-			_tooltipNames[i] = "Tooltip" + i;
-		int numTooltips = text.Length;
+    static List<TooltipLine> GetTooltips(ModItem modItem)
+    {
+        Item item = modItem.Item;
+        int numTooltips = 0;
+        // TODO: Add all vanilla tooltips with Main.MouseText_DrawItemTooltip_GetLinesInfo
+        if (item.defense > 0)
+        {
+            _tooltipNames[numTooltips] = "Defense";
+            _tooltipLines[numTooltips] = item.defense + Lang.tip[25].Value;
+            numTooltips++;
+        }
+        string[] lines = modItem.Tooltip.ToString().ReplaceLineEndings("\n").Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+        {
+            _tooltipNames[numTooltips] = "Tooltip" + i;
+            _tooltipLines[numTooltips] = lines[i];
+            numTooltips++;
+        }
+        string[] text = _tooltipLines;
 		bool[] modifier = _tooltipModifier;
 		bool[] badModifier = _tooltipModifier;
 		int oneDropLogo = 0;
 		try
-		{
-			return ItemLoader.ModifyTooltips(item.Item, ref numTooltips, _tooltipNames, ref text, ref modifier, ref badModifier, ref oneDropLogo, out _, -1);
+        {
+			return ItemLoader.ModifyTooltips(item, ref numTooltips, _tooltipNames, ref text, ref modifier, ref badModifier, ref oneDropLogo, out _, -1);
 		}
 		catch (Exception e)
-		{
+        {
 			List<TooltipLine> tooltips = [];
-			for (int i = 0; i < text.Length; i++)
-				tooltips.Add(new TooltipLine(item.Mod, _tooltipNames[i], text[i]));
-			tooltips.Add(new TooltipLine(item.Mod, "ERROR", "Failed to ModifyTooltips: " + e));
+			for (int i = 0; i < numTooltips; i++)
+				tooltips.Add(new TooltipLine(modItem.Mod, _tooltipNames[i], _tooltipLines[i]));
+			tooltips.Add(new TooltipLine(modItem.Mod, "ERROR", "Failed to ModifyTooltips: " + e));
 			return tooltips;
 		}
 	}
