@@ -58,7 +58,7 @@ class NPCHandler : ContentHandler<ModNPC>
         webp.Metadata.GetWebpMetadata().RepeatCount = 0;
         for (int i = 0; i < frames; i++)
         {
-            texture.GetData(0, new Microsoft.Xna.Framework.Rectangle(0, i * h, w, h), data, 0, data.Length);
+            texture.GetData(0, new Microsoft.Xna.Framework.Rectangle(offsetX, offsetY + i * h, w, h), data, 0, data.Length);
             if (i == 0)
             {
                 webp.ProcessPixelRows(p =>
