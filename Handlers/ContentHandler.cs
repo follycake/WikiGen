@@ -18,6 +18,11 @@ abstract class ContentHandler<TModType> where TModType : ModType
     public abstract void LoadTexture(int type);
     public abstract Asset<Texture2D> GetTexture(int type);
 
+    public virtual bool IsUnlisted(TModType modType)
+    {
+        return false;
+    }
+
     public virtual string GetCategory(TModType modType, out int order)
     {
         order = 0;

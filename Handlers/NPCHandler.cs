@@ -27,11 +27,31 @@ class NPCHandler : ContentHandler<ModNPC>
     public override void LoadTexture(int type) => Main.instance.LoadNPC(type);
     public override Asset<Texture2D> GetTexture(int type) => TextureAssets.Npc[type];
 
+    public override bool IsUnlisted(ModNPC modType)
+    {
+        return modType.NPC.dontCountMe;
+    }
+
     public override void StoreImage(int type, Texture2D texture, Stream stream)
     {
         int frames = Main.npcFrameCount[type];
         int w = texture.Width;
         int h = texture.Height / frames;
+        int offsetX = 0;
+        int offsetY = 0;
+        ModNPC modNpc = GetModType(type);
+        if (frames == 1 && modNpc != null)
+        {
+            modNpc.FindFrame(h);
+            offsetX = modNpc.NPC.frame.X;
+            offsetY = modNpc.NPC.frame.Y;
+            w = modNpc.NPC.frame.Width;
+            h = modNpc.NPC.frame.Height;
+            if (w <= 0)
+                w = texture.Width - offsetX;
+            if (h <= 0)
+                h = texture.Height - offsetY;
+        }
         Rgba32[] data = new Rgba32[w * h];
 
         using Image<Rgba32> webp = new(w, h);

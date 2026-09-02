@@ -132,7 +132,8 @@ public partial class WikiGen : Mod
 			}
 			Page page = handler.CreatePage(index, content);
 			page.Save();
-			pages.Add(page);
+			if (!handler.IsUnlisted(content))
+				pages.Add(page);
 		}
 		if (categories.Count > 1)
 			index.Add(Heading(handler.Title, 2));
