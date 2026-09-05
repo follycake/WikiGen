@@ -73,11 +73,18 @@ public partial class WikiGen : Mod
 	{
 		using Stream stream = mod.GetFileStream("Info", true);
 		using BinaryReader reader = new(stream);
-		while (stream.Position < stream.Length)
+		while (true)
 		{
-			string str = reader.ReadString();
-			if (str.Equals(property, StringComparison.InvariantCultureIgnoreCase))
-				return reader.ReadString();
+			try
+			{
+				string str = reader.ReadString();
+				if (str.Equals(property, StringComparison.InvariantCultureIgnoreCase))
+					return reader.ReadString();
+			}
+			catch (EndOfStreamException)
+			{
+				break;
+			}
 		}
 		return null;
 	}
