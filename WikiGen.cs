@@ -142,8 +142,16 @@ public partial class WikiGen : Mod
 			if (!handler.IsUnlisted(content))
 				pages.Add(page);
 		}
+		XElement nestedList = null;
 		if (categories.Count > 1)
-			index.Add(Heading(handler.Title, 2));
+		{
+			string id = handler.Title.ToLowerInvariant();
+			index.Add(Heading(handler.Title, 2).WithId(id));
+			nestedList = List();
+			XElement listItem = ListItem(Hyperlink("#" + id, handler.Title));
+			listItem.Add(nestedList);
+			tableOfContents.Add(listItem);
+		}
 		foreach (KeyValuePair<string, List<Page>> pair in categories.OrderBy(pair => orderMap[pair.Key]))
 		{
 			string category = pair.Key;
@@ -153,7 +161,10 @@ public partial class WikiGen : Mod
 			string title = handler.Title.Equals(category, StringComparison.InvariantCultureIgnoreCase) ? handler.Title : handler.Title + " - " + category;
 			string id = title.ToLowerInvariant();
 			index.Add(Heading(category, categories.Count > 1 ? 3 : 2).WithId(id));
-			tableOfContents.Add(ListItem(Hyperlink("#" + id, title)));
+			if (categories.Count > 1)
+				nestedList.Add(ListItem(Hyperlink("#" + id, category)));
+			else
+				tableOfContents.Add(ListItem(Hyperlink("#" + id, title)));
 
 			XTable table = new();
 			foreach (Page page in pages)
